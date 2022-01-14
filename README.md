@@ -74,7 +74,7 @@ Movie Web App with React, Apollo, and GraphQL
     export default App;
     ```
 
-## Style
+## Reset Style
 
 - Copy Reset Style from https://meyerweb.com/eric/tools/css/reset/
 
@@ -133,3 +133,61 @@ Movie Web App with React, Apollo, and GraphQL
 - On `index.html`
 
   - `<link rel="stylesheet" href="%PUBLIC_URL%/reset.css" />`
+
+## Set Apollo Client and Get Movies Query
+
+- Create `/src/apollo.js`
+
+  - ```jsx
+    import { ApolloClient, InMemoryCache } from '@apollo/client';
+
+    const client = new ApolloClient({
+      uri: 'http://localhost:4000/',
+      cache: new InMemoryCache(),
+    });
+
+    export default client;
+    ```
+
+- On `index.js`
+
+  - ```jsx
+    ...
+    import { ApolloProvider } from '@apollo/client';
+    import client from './apollo';
+
+    ReactDOM.render(
+      <React.StrictMode>
+        <ApolloProvider client={client}>
+          <App />
+        </ApolloProvider>
+      </React.StrictMode>,
+      document.getElementById('root')
+    );
+    ```
+
+- On `Home.js`
+
+  - ```jsx
+    import { gql, useQuery } from '@apollo/client';
+
+    const GET_MOVIES = gql`
+      {
+        movies {
+          id
+          medium_cover_image
+        }
+      }
+    `;
+
+    export default () => {
+      const { loading, error, data } = useQuery(GET_MOVIES);
+      if (loading) {
+        return 'loading...';
+      }
+      if (data && data.movies) {
+        return data.movies.map((movie) => <h1 key={movie.id}>{movie.id}</h1>);
+      }
+      return <h1>Home</h1>;
+    };
+    ```
