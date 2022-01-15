@@ -233,6 +233,16 @@ Movie Web App with React, Apollo, and GraphQL
       margin-top: 10px;
     `;
 
+    const Movies = styled.div`
+      padding: 2rem;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      grid-auto-flow: row;
+      grid-gap: 2rem;
+      width: calc(100% - 4rem);
+      margin-top: -8rem;
+    `;
+
     export default () => {
       const { loading, data } = useQuery(GET_MOVIES);
       return (
@@ -242,7 +252,13 @@ Movie Web App with React, Apollo, and GraphQL
             <SubTitle>I love GraphQL</SubTitle>
           </Header>
           {loading && <Loading>Loading...</Loading>}
-          {!loading && data.movies?.map((m) => <Movie key={m.id} id={m.id} />)}
+          {!loading && (
+            <Movies>
+              {data.movies?.map((m) => (
+                <Movie key={m.id} id={m.id} bg={m.medium_cover_image} />
+              ))}
+            </Movies>
+          )}
         </Container>
       );
     };
@@ -290,5 +306,122 @@ Movie Web App with React, Apollo, and GraphQL
       if (data && data.movie) {
         return data.movie.title;
       }
+    };
+    ```
+
+## Style
+
+- On `Movie.js`
+
+  - ```jsx
+    import { Link } from 'react-router-dom';
+    import styled from 'styled-components';
+
+    const Container = styled.div`
+      height: 700px;
+      width: 100%;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+      overflow: hidden;
+      border-radius: 7px;
+    `;
+
+    const Poster = styled.div`
+      background-image: url(${(props) => props.bg});
+      height: 100%;
+      width: 100%;
+      background-size: cover;
+      background-position: center;
+    `;
+
+    export default ({ id, bg }) => (
+      <Container>
+        <Link to={`/${id}`}>
+          <Poster bg={bg} />
+        </Link>
+      </Container>
+    );
+    ```
+
+- On `Detail.js`
+
+  - ```jsx
+    import { useParams } from 'react-router-dom';
+    import { gql, useQuery } from '@apollo/client';
+    import styled from 'styled-components';
+
+    const GET_MOVIE = gql`
+      query getMovie($id: Int!) {
+        movie(id: $id) {
+          id
+          title
+          medium_cover_image
+          language
+          rating
+          description_full
+        }
+      }
+    `;
+
+    const Container = styled.div`
+      background-image: linear-gradient(-45deg, #d754ab, #fd723a);
+      height: 100vh;
+      width: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-around;
+      align-items: center;
+      color: white;
+    `;
+
+    const Column = styled.div`
+      padding: 2rem;
+      width: calc(75% - 4rem);
+    `;
+
+    const Title = styled.h1`
+      font-size: 65px;
+      margin-bottom: 15px;
+    `;
+
+    const SubTitle = styled.h3`
+      font-size: 35px;
+      margin-bottom: 10px;
+    `;
+
+    const Description = styled.p`
+      font-size: 28px;
+    `;
+
+    const Poster = styled.div`
+      width: 25%;
+      height: 67%;
+      background-image: url(${(props) => props.image});
+      background-size: cover;
+      background-position: center;
+    `;
+
+    export default () => {
+      const { id } = useParams();
+      const { loading, data } = useQuery(GET_MOVIE, {
+        variables: { id: Number(id) },
+      });
+      return (
+        <Container>
+          {loading ? (
+            'Loading...'
+          ) : (
+            <>
+              <Column>
+                <Title>{data.movie.title}</Title>
+                <SubTitle>
+                  {data.movie.language} / {data.movie.rating}
+                </SubTitle>
+                <Description>{data.movie.description_full}</Description>
+              </Column>
+              <Poster image={data.movie.medium_cover_image} />
+            </>
+          )}
+        </Container>
+      );
     };
     ```

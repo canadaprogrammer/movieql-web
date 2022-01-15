@@ -38,11 +38,22 @@ const Title = styled.h1`
 const SubTitle = styled.h3`
   font-size: 35px;
 `;
+
 const Loading = styled.div`
   font-size: 18px;
   opacity: 0.5;
   font-weight: 500;
   margin-top: 10px;
+`;
+
+const Movies = styled.div`
+  padding: 2rem;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-auto-flow: row;
+  grid-gap: 2rem;
+  width: calc(100% - 4rem);
+  margin-top: -8rem;
 `;
 
 export default () => {
@@ -54,7 +65,13 @@ export default () => {
         <SubTitle>I love GraphQL</SubTitle>
       </Header>
       {loading && <Loading>Loading...</Loading>}
-      {!loading && data.movies?.map((m) => <Movie key={m.id} id={m.id} />)}
+      {!loading && (
+        <Movies>
+          {data.movies?.map((m) => (
+            <Movie key={m.id} id={m.id} bg={m.medium_cover_image} />
+          ))}
+        </Movies>
+      )}
     </Container>
   );
 };
