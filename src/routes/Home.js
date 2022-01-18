@@ -7,6 +7,7 @@ const GET_MOVIES = gql`
     movies {
       id
       medium_cover_image
+      isLiked @client
     }
   }
 `;
@@ -68,7 +69,12 @@ export default () => {
       {!loading && (
         <Movies>
           {data.movies?.map((m) => (
-            <Movie key={m.id} id={m.id} bg={m.medium_cover_image} />
+            <Movie
+              key={m.id}
+              id={m.id}
+              bg={m.medium_cover_image}
+              isLiked={m.isLiked}
+            />
           ))}
         </Movies>
       )}

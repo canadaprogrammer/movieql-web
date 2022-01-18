@@ -536,6 +536,85 @@ Movie Web App with React, Apollo, and GraphQL
     };
     ```
 
+## Local State
+
+- On `apollo.js`
+
+  - ```jsx
+    const client = new ApolloClient({
+      uri: 'http://localhost:4000/',
+      cache: new InMemoryCache(),
+      resolvers: {
+        Movie: {
+          isLiked: () => false,
+        },
+        Mutation: {
+          likeMovie: (_, { id }, { cache }) => {
+            cache.modify({
+              id: `Movie:${id}`,
+              fields: {
+                isLiked: (isLiked) => !isLiked,
+              },
+            });
+          },
+        },
+      },
+    });
+
+    export default client;
+    ```
+
+- On `Home.js`
+
+  - ```jsx
+    const GET_MOVIES = gql`
+      {
+        movies {
+          id
+          medium_cover_image
+          isLiked @client
+        }
+      }
+    `;
+
+    <Movies>
+      {data.movies?.map((m) => (
+        <Movie
+          key={m.id}
+          id={m.id}
+          bg={m.medium_cover_image}
+          isLiked={m.isLiked}
+        />
+      ))}
+    </Movies>
+    ```
+
+- On `Movie.js`
+
+  - ```jsx
+    import { gql, useMutation } from '@apollo/client';
+
+    const LIKE_MOVIE = gql`
+      mutation likeMovie($id: Int!) {
+        likeMovie(id: $id) @client
+      }
+    `;
+
+    export default ({ id, bg, isLiked }) => {
+      const [likeMovie] = useMutation(LIKE_MOVIE, {
+        variables: { id: parseInt(id) },
+      });
+      return (
+        <Container>
+          <Link to={`/${id}`}>
+            <Poster bg={bg} />
+          </Link>
+          <button onClick={likeMovie}>{isLiked ? 'Unlike' : 'Like'}</button>
+        </Container>
+      );
+    };
+    ```
+
 ## Chrome App: Apollo Client Devtools
 
 - It has bugs and not good, but it's only app for Apollo.
