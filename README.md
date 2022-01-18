@@ -549,7 +549,7 @@ Movie Web App with React, Apollo, and GraphQL
           isLiked: () => false,
         },
         Mutation: {
-          likeMovie: (_, { id }, { cache }) => {
+          toggleLikeMovie: (_, { id }, { cache }) => {
             cache.modify({
               id: `Movie:${id}`,
               fields: {
@@ -595,13 +595,13 @@ Movie Web App with React, Apollo, and GraphQL
     import { gql, useMutation } from '@apollo/client';
 
     const LIKE_MOVIE = gql`
-      mutation likeMovie($id: Int!) {
-        likeMovie(id: $id) @client
+      mutation toggleLikeMovie($id: Int!) {
+        toggleLikeMovie(id: $id) @client
       }
     `;
 
     export default ({ id, bg, isLiked }) => {
-      const [likeMovie] = useMutation(LIKE_MOVIE, {
+      const [toggleMovie] = useMutation(LIKE_MOVIE, {
         variables: { id: parseInt(id) },
       });
       return (
@@ -609,11 +609,31 @@ Movie Web App with React, Apollo, and GraphQL
           <Link to={`/${id}`}>
             <Poster bg={bg} />
           </Link>
-          <button onClick={likeMovie}>{isLiked ? 'Unlike' : 'Like'}</button>
+          <button onClick={toggleMovie}>{isLiked ? 'Unlike' : 'Like'}</button>
         </Container>
       );
     };
     ```
+
+- On `Detail.js`
+
+  - ```jsx
+    const GET_MOVIE = gql`
+      query getMovie($id: Int!) {
+        movie(id: $id) {
+          ...
+          id              // it needs to be identified.
+          isLiked @client
+        }
+    
+    return (
+      <Container>
+      ...
+              <Title>
+                {`${data.movie.title} ${data.movie.isLiked ? '💖' : '😢'}`}
+              </Title>
+    ```
+
 
 ## Chrome App: Apollo Client Devtools
 
